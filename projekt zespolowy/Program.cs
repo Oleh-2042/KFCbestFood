@@ -14,9 +14,15 @@ builder.Services.AddCors(options =>
     });
 });
 
-// --- 2. Налаштовуємо DbContext для PostgreSQL ---
-// Читаємо рядок підключення з конфігурації (appsettings.json або змінні середовища)
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+// Якщо ми запускаємо локально (не на Railway), візьмемо її з appsettings
+if (string.IsNullOrEmpty(connectionString))
+{
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+}
+// --- Кінець нового коду ---
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseNpgsql(connectionString);
