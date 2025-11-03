@@ -1,11 +1,9 @@
-// Program.cs
 using Microsoft.EntityFrameworkCore;
 using projekt_zespolowy.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. Додаємо CORS ---
-// Це дозволить нашому HTML/JS спілкуватися з API
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -16,11 +14,12 @@ builder.Services.AddCors(options =>
     });
 });
 
-// --- 2. Додаємо Контекст Бази Даних (DbContext) ---
-// Ми використовуємо SQLite, файл називатиметься 'database.db'
+// --- 2. Налаштовуємо DbContext для PostgreSQL ---
+// Читаємо рядок підключення з конфігурації (appsettings.json або змінні середовища)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseNpgsql(connectionString);
 });
 
 // Додаємо контролери та Swagger (для документації API)
@@ -30,12 +29,30 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Налаштування для production та development
-if (app.Environment.IsDevelopment())
+// Автоматичне застосування міграцій при старті (опціонально, але зручно для деплою)
+using (var scope = app.Services.CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Помилка при застосуванні міграцій");
+        // Не кидаємо далі — лог збережено, додаткову обробку можна додати за потреби
+    }
 }
+
+// Налаштування для development
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "KFCbestFood API v1");
+    c.RoutePrefix = string.Empty; // Показати Swagger на корені сайту
+});
 
 app.UseHttpsRedirection();
 

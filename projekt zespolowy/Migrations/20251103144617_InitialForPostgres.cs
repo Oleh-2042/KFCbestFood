@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace projekt_zespolowy.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialForPostgres : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,12 +15,12 @@ namespace projekt_zespolowy.Migrations
                 name: "Produkty",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Nazwa = table.Column<string>(type: "TEXT", nullable: false),
-                    Cena = table.Column<decimal>(type: "TEXT", nullable: false),
-                    Kategoria = table.Column<string>(type: "TEXT", nullable: true),
-                    StanMagazynu = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nazwa = table.Column<string>(type: "text", nullable: false),
+                    Cena = table.Column<decimal>(type: "numeric", nullable: false),
+                    Kategoria = table.Column<string>(type: "text", nullable: true),
+                    StanMagazynu = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
