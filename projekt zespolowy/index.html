@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KFC Produkt Management</title>
+    <style>
+        /* Стилі в дусі KFC */
+        :root {
+            --kfc-red: #F40027;
+            --kfc-black: #201A1A;
+            --kfc-white: #FFFFFF;
+            --kfc-gray: #F0F0F0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: var(--kfc-gray);
+            color: var(--kfc-black);
+        }
+
+        header {
+            background-color: var(--kfc-red);
+            color: var(--kfc-white);
+            padding: 20px;
+            text-align: center;
+            font-family: 'Arial Black', Gadget, sans-serif;
+            font-size: 2em;
+            text-transform: uppercase;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: var(--kfc-white);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Стилізація форми */
+        form {
+            border: 2px dashed var(--kfc-red);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            background: #fffafa;
+        }
+
+            form div {
+                margin-bottom: 15px;
+            }
+
+            form label {
+                display: block;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+
+            form input[type="text"],
+            form input[type="number"] {
+                width: calc(100% - 20px);
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+
+        /* Стилізація кнопок */
+        button {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.2s;
+        }
+
+            button[type="submit"] {
+                background-color: var(--kfc-red);
+                color: var(--kfc-white);
+            }
+
+                button[type="submit"]:hover {
+                    opacity: 0.8;
+                }
+
+            button.edit-btn, button.delete-btn {
+                background-color: var(--kfc-black);
+                color: var(--kfc-white);
+                font-size: 0.8em;
+                padding: 8px 15px;
+                margin: 0 5px;
+            }
+
+            button.delete-btn {
+                background-color: #777;
+            }
+
+            button#clearForm {
+                background-color: transparent;
+                color: var(--kfc-black);
+                border: 2px solid var(--kfc-black);
+            }
+
+        /* Стилізація таблиці */
+        h2 {
+            border-bottom: 3px solid var(--kfc-red);
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--kfc-black);
+            color: var(--kfc-white);
+            text-transform: uppercase;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--kfc-gray);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        KFC Produkt Management
+    </header>
+
+    <div class="container">
+        <form id="productForm">
+            <h2>Dodaj / Edytuj Produkt</h2>
+            <input type="hidden" id="productId" />
+            <div>
+                <label for="nazwa">Nazwa:</label>
+                <input type="text" id="nazwa" required placeholder="np. Zinger" />
+            </div>
+            <div>
+                <label for="cena">Cena (zł):</label>
+                <input type="number" id="cena" step="0.01" required placeholder="np. 15.99" />
+            </div>
+            <div>
+                <label for="kategoria">Kategoria:</label>
+                <input type="text" id="kategoria" placeholder="np. Kanapki" />
+            </div>
+            <div>
+                <label for="stan_magazynu">Stan Magazynu (szt.):</label>
+                <input type="number" id="stan_magazynu" placeholder="np. 100" />
+            </div>
+            <button type="submit">Zapisz Produkt</button>
+            <button type="button" id="clearForm">Anuluj Edycję</button>
+        </form>
+
+        <h2>Lista Produktów</h2>
+        <table id="productTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nazwa</th>
+                    <th>Cena</th>
+                    <th>Kategoria</th>
+                    <th>Stan Magazynu</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody id="productTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
