@@ -1,9 +1,10 @@
+п»їusing System;
 using Microsoft.EntityFrameworkCore;
 using projekt_zespolowy.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. Додаємо CORS ---
+// --- 1. Р”РѕРґР°С”РјРѕ CORS ---
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -14,28 +15,45 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
-
-// Якщо ми запускаємо локально (не на Railway), візьмемо її з appsettings
-if (string.IsNullOrEmpty(connectionString))
+// --- 2. РќР°Р»Р°С€С‚СѓРІР°РЅРЅСЏ Kestrel (Railway) ---
+builder.WebHost.ConfigureKestrel(options =>
 {
+    var port = int.Parse(Environment.GetEnvironmentVariable("PORT") ?? "5000");
+    options.ListenAnyIP(port);
+});
+
+// --- 3. РџС–РґРєР»СЋС‡РµРЅРЅСЏ РґРѕ Р‘Р” ---
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+string connectionString;
+
+if (!string.IsNullOrEmpty(databaseUrl))
+{
+    // Railway РґР°С” postgres://user:pass@host:port/db
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':');
+
+    connectionString =
+        $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+}
+else
+{
+    // Р›РѕРєР°Р»СЊРЅРѕ Р±РµСЂРµРјРѕ Р· appsettings.json
     connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 }
-// --- Кінець нового коду ---
+
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseNpgsql(connectionString);
 });
 
-// Додаємо контролери та Swagger (для документації API)
+// --- 4. Controllers + Swagger ---
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Автоматичне застосування міграцій при старті (опціонально, але зручно для деплою)
+// --- 5. РђРІС‚РѕРјР°С‚РёС‡РЅС– РјС–РіСЂР°С†С–С— ---
 using (var scope = app.Services.CreateScope())
 {
     try
@@ -46,23 +64,21 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Помилка при застосуванні міграцій");
-        // Не кидаємо далі — лог збережено, додаткову обробку можна додати за потреби
+        logger.LogError(ex, "РџРѕРјРёР»РєР° РїСЂРё Р·Р°СЃС‚РѕСЃСѓРІР°РЅРЅС– РјС–РіСЂР°С†С–Р№");
     }
 }
 
-// Налаштування для development
-
+// --- 6. Middleware ---
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "KFCbestFood API v1");
-    c.RoutePrefix = string.Empty; // Показати Swagger на корені сайту
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Projekt Zespolowy API v1");
+    c.RoutePrefix = string.Empty; // Swagger РЅР° РєРѕСЂРµРЅС– СЃР°Р№С‚Сѓ
 });
 
-app.UseHttpsRedirection();
+// вљ пёЏ Railway СЃР°Рј РґРѕРґР°С” HTTPS С‡РµСЂРµР· РїСЂРѕРєСЃС–, С‚РѕРјСѓ СЂРµРґРёСЂРµРєС‚ РЅРµ РїРѕС‚СЂС–Р±РµРЅ
+// app.UseHttpsRedirection();
 
-// --- 3. Вмикаємо CORS ---
 app.UseCors("AllowAll");
 
 app.UseAuthorization();
