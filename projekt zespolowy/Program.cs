@@ -18,6 +18,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+
 // --- 2. Налаштування Kestrel (Railway) ---
 builder.WebHost.ConfigureKestrel(options =>
 {
