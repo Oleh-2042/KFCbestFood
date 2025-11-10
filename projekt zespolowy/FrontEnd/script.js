@@ -82,7 +82,10 @@ function editProdukt(id, nazwaVal, cenaVal, kategoriaVal, stanVal) {
 
 // Видалення
 async function deleteProdukt(id) {
-    if (!confirm(Czy na pewno chcesz usunąć produkt o ID: ${ id } ?)) {
+    if (!confirm(`
+Czy na pewno chcesz usunąć produkt o ID: ${ id} ?`
+)
+) {
         return;
     }
 
