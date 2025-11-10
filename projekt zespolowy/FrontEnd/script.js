@@ -1,6 +1,6 @@
 ﻿// --- script.js ---
 
-const apiUrl = 'https://localhost:7122/api/Produkty';
+const apiUrl = 'https://kfcbestfood-production.up.railway.app/api/Produkty';
 
 const form = document.getElementById('productForm');
 const tableBody = document.getElementById('productTableBody');
