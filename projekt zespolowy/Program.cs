@@ -11,7 +11,7 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
             "https://kfcbestfood.netlify.app",   // твій Netlify-домен
-            "http://localhost:7122"                // локальний фронтенд для тестів
+            "http://localhost:3000"                // локальний фронтенд для тестів
         )
         .AllowAnyHeader()
         .AllowAnyMethod();
