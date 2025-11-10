@@ -14,16 +14,12 @@ const stanMagazynu = document.getElementById('stan_magazynu');
 async function fetchProdukty() {
     try {
         const response = await fetch(apiUrl);
-
-        // ------------------ (ВИПРАВЛЕНО РЯДОК 17) ------------------
-        if (!response.ok) throw new Error(HTTP error! status: ${ response.status });
-        // -----------------------------------------------------------
-
+        if (!response.ok) throw new Error(`HTTP error! status: ${ response.status}`);
         const produkty = await response.json();
 
         tableBody.innerHTML = '';
         produkty.forEach(p => {
-            const row =
+            const row = `
                 <tr>
                     <td>${p.id}</td>
                     <td>${p.nazwa}</td>
@@ -35,15 +31,12 @@ async function fetchProdukty() {
                         <button class="delete-btn" onclick="deleteProdukt(${p.id})">Usuń</button>
                     </td>
                 </tr>
-                ;
+            `;
             tableBody.innerHTML += row;
         });
     } catch (error) {
         console.error("Błąd ładowania produktów:", error);
-
-        // ------------------ (ВИПРАВЛЕНО РЯДОК 37) ------------------
         alert("Nie udało się załadować produktów. Sprawdź, czy serwer API działa.");
-        // -----------------------------------------------------------
     }
 }
 
@@ -87,6 +80,28 @@ function editProdukt(id, nazwaVal, cenaVal, kategoriaVal, stanVal) {
     nazwa.focus();
 }
 
+// Видалення
+async function deleteProdukt(id) {
+    if (!confirm(Czy na pewno chcesz usunąć produkt o ID: ${ id } ?)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(${ apiUrl } / ${ id }, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            fetchProdukty();
+        } else {
+            alert("Nie udało się usunąć produktu.");
+        }
+    } catch (error) {
+        console.error("Błąd usuwania:", error);
+        alert("Wystąpił błąd podczas usuwania produktu.");
+    }
+}
+
 // Очистити форму
 function clearForm() {
     productId.value = '';
@@ -96,30 +111,3 @@ clearButton.addEventListener('click', clearForm);
 
 // Завантажити при старті
 document.addEventListener('DOMContentLoaded', fetchProdukty);
-
-// --- (ПРИМІТКА: Ця функція не була визначена у вашому коді) ---
-// Вам потрібно буде додати функцію deleteProdukt(id),
-// оскільки ваші кнопки "Usuń" її викликають.
-// Приклад:
-/*
-async function deleteProdukt(id) {
-    if (!confirm(Czy na pewno chcesz usunąć produkt o ID: ${id}?)) {
-        return;
-    }
-
-    try {
-        const response = await fetch(${apiUrl}/${id}, {
-            method: 'DELETE'
-        });
-
-        if (response.ok) {
-            fetchProdukty(); // Оновити таблицю
-        } else {
-            alert("Nie udało się usunąć produktu.");
-        }
-    } catch (error) {
-        console.error("Błąd usuwania:", error);
-        alert("Wystąpił błąd podczas usuwania produktu.");
-    }
-}
-*/
