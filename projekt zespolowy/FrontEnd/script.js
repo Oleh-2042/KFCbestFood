@@ -14,7 +14,7 @@ const stanMagazynu = document.getElementById('stan_magazynu');
 async function fetchProdukty() {
     try {
         const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error(HTTP error! status: ${ response.status });
+        throw new Error(HTTP error! status: ${ response.status });
         const produkty = await response.json();
 
         tableBody.innerHTML = '';
