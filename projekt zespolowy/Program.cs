@@ -4,14 +4,17 @@ using projekt_zespolowy.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. Додаємо CORS ---
+// --- 1. Додаємо CORS для Netlify ---
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowNetlify", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy.WithOrigins(
+            "https://kfcbestfood.netlify.app",   // твій Netlify-домен
+            "http://localhost:7122"                // локальний фронтенд для тестів
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
 });
 
@@ -76,12 +79,10 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty; // Swagger на корені сайту
 });
 
-
-
-app.UseCors("AllowAll");
+// Використовуємо політику CORS для Netlify
+app.UseCors("AllowNetlify");
 
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
