@@ -1,33 +1,18 @@
-name: Build and Publish .NET App
+# Встановлюємо SDK для збірки
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
 
-on:
-  push:
-    branches: [ main ]
+# Копіюємо файли проекту
+COPY . ./
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# Відновлюємо залежності та збираємо
+RUN dotnet restore "projekt zespolowy.sln"
+RUN dotnet publish "projekt zespolowy/projekt zespolowy.csproj" -c Release -o /app/publish
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+# Створюємо runtime-образ
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/publish .
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'
-
-    - name: Restore dependencies
-      run: dotnet restore "projekt zespolowy.sln"
-
-    - name: Build
-      run: dotnet build "projekt zespolowy.sln" --configuration Release
-
-    - name: Publish
-      run: dotnet publish "projekt zespolowy/projekt zespolowy.csproj" -c Release -o ./publish
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: published-app
-        path: ./publish
+# Вказуємо команду запуску
+ENTRYPOINT ["dotnet", "projekt zespolowy.dll"]
