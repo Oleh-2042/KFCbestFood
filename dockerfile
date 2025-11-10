@@ -1,24 +1,33 @@
-# Етап 1: Збірка
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+name: Build and Publish .NET App
 
-# Копіюємо .sln і .csproj файли
-COPY "projekt zespolowy.sln" .
-COPY "projekt zespolowy/projekt zespolowy.csproj" "projekt zespolowy/"
+on:
+  push:
+    branches: [ main ]
 
-# Запускаємо restore (відновлення пакетів)
-RUN dotnet restore "projekt zespolowy.sln"
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-# Копіюємо ВЕСЬ код
-COPY . .
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-# Публікуємо (компілюємо) додаток
-RUN dotnet publish "projekt zespolowy/projekt zespolowy.csproj" -c Release -o /app/publish
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
 
-# Етап 2: Запуск
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
-WORKDIR /app
-COPY --from=build /app/publish .
+    - name: Restore dependencies
+      run: dotnet restore "projekt zespolowy.sln"
 
-# Тут ми вказуємо правильну назву .dll (з пробілом!)
-ENTRYPOINT ["dotnet", "projekt zespolowy.dll"]
+    - name: Build
+      run: dotnet build "projekt zespolowy.sln" --configuration Release
+
+    - name: Publish
+      run: dotnet publish "projekt zespolowy/projekt zespolowy.csproj" -c Release -o ./publish
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: published-app
+        path: ./publish
