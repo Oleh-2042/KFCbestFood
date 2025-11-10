@@ -76,8 +76,7 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty; // Swagger на корені сайту
 });
 
-// ⚠️ Railway сам додає HTTPS через проксі, тому редирект не потрібен
-// app.UseHttpsRedirection();
+
 
 app.UseCors("AllowAll");
 
